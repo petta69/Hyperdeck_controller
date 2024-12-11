@@ -37,6 +37,7 @@ class Hyperdeck:
             return False
         response_key = self._receive_response()
         self.logger.debug(response_key)
+        return True
         
         
     def _close_connection(self):
