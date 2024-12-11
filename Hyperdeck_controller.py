@@ -70,14 +70,11 @@ class Hyperdeck:
         while True:
             try:
                 # # We read 32 bytes at the time
-                response = self._sock.recv(128)
+                response = self._sock.recv(2048)
                 # # Now add to our response_payload
                 response_payload = f"{response_payload}{response.decode('utf-8')}"
                 self.logger.debug(response)
                 if response_payload.endswith('\r\n'):
-                    self.logger.debug(response_payload)
-                    return response_payload
-                elif len(response_payload) > 7: ## Auth does not give \r
                     self.logger.debug(response_payload)
                     return response_payload
                 else: 
