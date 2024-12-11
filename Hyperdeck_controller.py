@@ -1,0 +1,71 @@
+import sys
+import os
+import socket
+import ipaddress
+from typing import Optional
+from logger_settings import Logger
+
+
+def validate_ipaddress(host_string):
+    try:
+        ip_object = ipaddress.ip_address(host_string)
+        return ip_object
+    except ValueError:
+        print(f'ERROR: Could not validate ip: {host_string}')
+        return 0
+    
+    
+    
+class Hyperdeck:
+    def __init__(self, port: int, host_ip: str, verbose=5) -> None:
+        self.logger = Logger(name=__name__, level=verbose).get_logger()
+        if validate_ipaddress:
+            self._location = (host_ip, port)
+            self.logger.debug(f'Will use HOST IP: {self._location}')
+        else:
+            self.logger.error(f'ERROR: {host_ip} is not a valid IP')
+            return False 
+    
+    def _connect(self):
+        try:
+            self._sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            self._sock.settimeout(30)
+            self._sock.connect(self._location)
+        except:
+            return False
+        response_key = self._receive_response()
+        self.logger.debug(response_key)
+        
+        
+    def _close_connection(self):
+        self._sock.close()
+        
+    def _send_command(self, command: str) -> Optional[str]:
+        ## First we make the connection
+        if not self._connect():
+            error_dict = {"ERROR": "Could not make connection to device"}
+            self.logger.debug(error_dict)
+            return error_dict
+
+        ## Now send command
+        command = f'{command}\r\n'
+        command_binary = str.encode(command, "utf-8")
+        self.logger.debug(f'Sending command: {command_binary}')
+        
+        self._sock.send(command_binary)
+        self.logger.debug(self._sock)
+        try:
+            response = self._receive_response()
+            self.logger.debug(f"Response: {response}")
+        except:
+            response = []
+        return {"Sending": command, "Response": response}    
+    
+    
+if __name__ == "__main__":
+    print("Starting")
+    hyperdeck = Hyperdeck(port=9993, host_ip='192.168.197.22')
+    hyperdeck._send_command("device info")
+    
+    print("End")
+    
