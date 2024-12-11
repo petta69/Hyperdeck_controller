@@ -67,7 +67,7 @@ class Hyperdeck:
         while True:
             try:
                 # # We read 32 bytes at the time
-                response = self._sock.recv(32)
+                response = self._sock.recv(128)
                 # # Now add to our response_payload
                 response_payload = f"{response_payload}{response.decode('utf-8')}"
                 self.logger.debug(response)
