@@ -1,5 +1,6 @@
 import sys
 import os
+import time
 import socket
 import ipaddress
 from typing import Optional
@@ -83,13 +84,26 @@ class Hyperdeck:
 
             except socket.timeout:
                 self.logger.error("Could not get answer")
-                break   
+                break
+            
+    def play_clip_single(self, clip_id):
+        ## First we do a goto
+        command = f"goto: clip id: {clip_id}"
+        self._send_command(command=command)
+        ## Now we play
+        command = "play: single clip: true"
+        self._send_command(command=command)
     
     
 if __name__ == "__main__":
     print("Starting")
     hyperdeck = Hyperdeck(port=9993, host_ip='192.168.197.22')
-    hyperdeck._send_command("device info")
+    hyperdeck.play_clip_single(clip_id=2)
+    
+    hyperdeck._send_command("transport info")
+    time.sleep(3)
+    hyperdeck._send_command("transport info")
+    
     
     print("End")
     
