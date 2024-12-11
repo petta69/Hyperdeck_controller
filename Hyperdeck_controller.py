@@ -28,10 +28,12 @@ class Hyperdeck:
     
     def _connect(self):
         try:
+            self.logger.debug("Trying connection")
             self._sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             self._sock.settimeout(30)
             self._sock.connect(self._location)
         except:
+            self.logger.debug("Connection failed")
             return False
         response_key = self._receive_response()
         self.logger.debug(response_key)
