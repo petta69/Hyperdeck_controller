@@ -62,6 +62,30 @@ class Hyperdeck:
         return {"Sending": command, "Response": response}    
     
     
+    def _receive_response(self) -> Optional[dict]:
+        response_payload = ""
+        while True:
+            try:
+                # # We read 32 bytes at the time
+                response = self._sock.recv(32)
+                # # Now add to our response_payload
+                response_payload = f"{response_payload}{response.decode('utf-8')}"
+                self.logger.debug(response)
+                if response_payload.endswith('\r\n'):
+                    self.logger.debug(response_payload)
+                    return response_payload
+                elif len(response_payload) > 7: ## Auth does not give \r
+                    self.logger.debug(response_payload)
+                    return response_payload
+                else: 
+                    self.logger.debug(response_payload)
+                    return response_payload
+
+            except socket.timeout:
+                self.logger.error("Could not get answer")
+                break   
+    
+    
 if __name__ == "__main__":
     print("Starting")
     hyperdeck = Hyperdeck(port=9993, host_ip='192.168.197.22')
